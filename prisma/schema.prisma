@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Transaction {
+  id             String   @id @default(cuid())
+  type           String
+  amount         Float
+  category       String
+  subcategory    String?
+  description    String?
+  date           DateTime
+  financeMode    String
+  necessityLabel String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model SavingsGoal {
+  id            String    @id @default(cuid())
+  title         String
+  targetAmount  Float
+  currentAmount Float     @default(0)
+  deadline      DateTime?
+  priority      String    @default("medium")
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model WeeklyReview {
+  id              String   @id @default(cuid())
+  weekStart       DateTime
+  weekEnd         DateTime
+  totalIncome     Float    @default(0)
+  totalExpenses   Float    @default(0)
+  totalSaved      Float    @default(0)
+  wasteSpending   Float    @default(0)
+  notes           String?
+  improvementPlan String?
+  createdAt       DateTime @default(now())
+}
