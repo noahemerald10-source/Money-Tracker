@@ -6,36 +6,44 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model Transaction {
-  id             String   @id @default(cuid())
-  type           String
-  amount         Float
-  category       String
-  subcategory    String?
-  description    String?
-  date           DateTime
-  financeMode    String
+  id                 String   @id @default(cuid())
+  userId             String
+  type               String
+  amount             Float
+  category           String
+  subcategory        String?
+  description        String?
+  date               DateTime
+  financeMode        String
   necessityLabel     String
   isRecurring        Boolean  @default(false)
   recurringFrequency String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model SavingsGoal {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
+  userId        String
   title         String
   targetAmount  Float
-  currentAmount Float     @default(0)
+  currentAmount Float    @default(0)
   deadline      DateTime?
-  priority      String    @default("medium")
+  priority      String   @default("medium")
   notes         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model WeeklyReview {
   id              String   @id @default(cuid())
+  userId          String
   weekStart       DateTime
   weekEnd         DateTime
   totalIncome     Float    @default(0)
@@ -45,4 +53,6 @@ model WeeklyReview {
   notes           String?
   improvementPlan String?
   createdAt       DateTime @default(now())
+
+  @@index([userId])
 }
