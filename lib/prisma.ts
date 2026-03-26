@@ -1,9 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
-export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({ log: ["error"] });
+function makePrisma() {
+  return new PrismaClient({ log: ["error"] });
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+// Always create fresh in production (serverless). In dev, reuse to limit connections
+// but clear on connection errors (handled by callers with try/catch)
+export const prisma = globalForPrisma.prisma ?? makePrisma();
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
+
+// Reset on closed connection so next request gets a fresh client
+export function resetPrismaConnection() {
+  globalForPrisma.prisma = undefined;
+}

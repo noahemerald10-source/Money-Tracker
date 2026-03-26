@@ -11,15 +11,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "MoneyTrack — Finance Dashboard",
-  description: "Premium personal finance tracker",
+  title: "MoneyTrack - Finance Dashboard",
+  description: "Personal finance tracker",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
       <body className={`${inter.variable} font-sans antialiased`}>
@@ -28,8 +24,8 @@ export default function RootLayout({
           <main className="flex-1 overflow-y-auto bg-background">
             {children}
           </main>
+          <Toaster />
         </div>
-        <Toaster />
       </body>
     </html>
   );

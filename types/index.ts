@@ -8,6 +8,8 @@ export interface Transaction {
   date: Date | string;
   financeMode: string;
   necessityLabel: string;
+  isRecurring: boolean;
+  recurringFrequency?: string | null;
   createdAt: Date | string;
   updatedAt: Date | string;
 }

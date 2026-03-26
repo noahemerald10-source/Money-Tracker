@@ -11,6 +11,8 @@ const updateTransactionSchema = z.object({
   date: z.string().optional(),
   financeMode: z.enum(["personal", "business"]).optional(),
   necessityLabel: z.enum(["need", "want", "waste"]).optional(),
+  isRecurring: z.boolean().optional(),
+  recurringFrequency: z.enum(["weekly", "fortnightly", "monthly", "quarterly", "yearly"]).optional().nullable(),
 });
 
 export async function GET(

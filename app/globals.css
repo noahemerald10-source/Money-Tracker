@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    --background: 222 47% 5%;
-    --foreground: 210 40% 96%;
+    --background: 0 0% 3%;           /* #080808 */
+    --foreground: 0 0% 100%;          /* #FFFFFF */
 
-    --card: 222 44% 8%;
-    --card-foreground: 210 40% 96%;
+    --card: 0 0% 6%;                  /* #0f0f0f */
+    --card-foreground: 0 0% 100%;
 
-    --popover: 222 44% 8%;
-    --popover-foreground: 210 40% 96%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 230 85% 64%;
-    --primary-foreground: 222 47% 5%;
+    --primary: 160 84% 39%;            /* #10B981 emerald */
+    --primary-foreground: 0 0% 100%;  /* white text on emerald */
 
-    --secondary: 222 40% 13%;
-    --secondary-foreground: 210 40% 96%;
+    --secondary: 0 0% 10%;            /* #1a1a1a */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 222 40% 11%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 0 0% 7%;
+    --muted-foreground: 220 9% 46%;   /* #6B7280 */
 
-    --accent: 222 40% 13%;
-    --accent-foreground: 210 40% 96%;
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 68% 55%;
-    --destructive-foreground: 210 40% 96%;
+    --destructive: 0 84% 60%;         /* #EF4444 */
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 222 35% 14%;
-    --input: 222 35% 14%;
-    --ring: 230 85% 64%;
+    --border: 160 84% 39%;             /* #10B981 — use /opacity to control strength */
+    --input: 0 0% 10%;
+    --ring: 160 84% 39%;               /* gold focus rings */
   }
 
   * {
@@ -43,7 +43,74 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    background-image: radial-gradient(rgba(16, 185, 129, 0.025) 1px, transparent 1px);
+    background-size: 28px 28px;
     margin: 0;
     min-height: 100vh;
   }
 }
+
+/* ── Gold scrollbar ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar          { width: 6px; height: 6px; }
+::-webkit-scrollbar-track    { background: #080808; }
+::-webkit-scrollbar-thumb    { background: #10B981; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #34D399; }
+
+/* ── Gold focus rings ────────────────────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid #10B981;
+  outline-offset: 2px;
+}
+
+/* ── Utility: gold gradient text ─────────────────────────────────────────── */
+.gold-text {
+  background: linear-gradient(135deg, #10B981, #34D399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Utility: gold glow on text ──────────────────────────────────────────── */
+.gold-glow {
+  text-shadow: 0 0 24px rgba(16, 185, 129, 0.45), 0 0 48px rgba(16, 185, 129, 0.2);
+}
+
+/* ── Utility: gold card border ───────────────────────────────────────────── */
+.gold-card {
+  background: #0f0f0f;
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Stat card hover (used in server component — no JS handlers) ─────────── */
+.stat-card {
+  background: #0f0f0f;
+  border: 1px solid rgba(16, 185, 129, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.stat-card:hover {
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+/* ── Gold card link hover ─────────────────────────────────────────────────── */
+.gold-link {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #10B981;
+  transition: background 0.2s ease;
+}
+.gold-link:hover {
+  background: rgba(16, 185, 129, 0.15);
+}
+
+/* ── Primary button gold gradient ────────────────────────────────────────── */
+.btn-gold {
+  background: linear-gradient(135deg, #10B981, #34D399);
+  color: #000;
+  font-weight: 700;
+  transition: filter 0.2s ease, transform 0.15s ease;
+}
+.btn-gold:hover  { filter: brightness(1.12); }
+.btn-gold:active { transform: scale(0.97); }
