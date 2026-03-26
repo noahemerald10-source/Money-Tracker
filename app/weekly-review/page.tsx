@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { prisma } from "@/lib/prisma";
 import { WeeklyReviewClient } from "@/components/weekly-review/weekly-review-client";
 
