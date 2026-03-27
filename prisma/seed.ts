@@ -52,6 +52,7 @@ async function main() {
   await prisma.savingsGoal.createMany({
     data: [
       {
+        userId: "seed-user-id",
         title: "Emergency Fund",
         targetAmount: 15000,
         currentAmount: 8500,
@@ -60,6 +61,7 @@ async function main() {
         notes: "6 months of living expenses. Critical priority.",
       },
       {
+        userId: "seed-user-id",
         title: "Europe Trip",
         targetAmount: 5000,
         currentAmount: 2100,
@@ -68,6 +70,7 @@ async function main() {
         notes: "2-week trip through Portugal, Spain, France.",
       },
       {
+        userId: "seed-user-id",
         title: "New MacBook Pro",
         targetAmount: 3500,
         currentAmount: 3500,
@@ -76,6 +79,7 @@ async function main() {
         notes: "For business use. Already achieved!",
       },
       {
+        userId: "seed-user-id",
         title: "Investment Portfolio",
         targetAmount: 50000,
         currentAmount: 12000,
@@ -91,6 +95,7 @@ async function main() {
 
   await prisma.weeklyReview.create({
     data: {
+      userId: "seed-user-id",
       weekStart,
       weekEnd,
       totalIncome: 5500,

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -25,12 +26,14 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const { userId } = await auth();
     const body = await request.json();
     const data = createGoalSchema.parse(body);
 
     const goal = await prisma.savingsGoal.create({
       data: {
         ...data,
+        userId: userId ?? "anonymous",
         deadline: data.deadline ? new Date(data.deadline) : null,
       },
     });

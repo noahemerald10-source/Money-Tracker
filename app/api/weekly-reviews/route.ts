@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -27,12 +28,14 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const { userId } = await auth();
     const body = await request.json();
     const data = createReviewSchema.parse(body);
 
     const review = await prisma.weeklyReview.create({
       data: {
         ...data,
+        userId: userId ?? "anonymous",
         weekStart: new Date(data.weekStart),
         weekEnd: new Date(data.weekEnd),
       },

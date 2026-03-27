@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -68,12 +69,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { userId } = await auth();
     const body = await request.json();
     const data = createTransactionSchema.parse(body);
 
     const transaction = await prisma.transaction.create({
       data: {
         ...data,
+        userId: userId ?? "anonymous",
         date: new Date(data.date),
       },
     });
