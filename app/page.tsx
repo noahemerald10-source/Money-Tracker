@@ -11,13 +11,13 @@ export default function HomePage() {
         </p>
         <div className="flex flex-col gap-3">
           <a
-            href="/sign-up"
+            href="/dashboard"
             className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             Get started for free
           </a>
           <a
-            href="/sign-in"
+            href="/dashboard"
             className="rounded-xl border border-border/60 px-6 py-3 text-sm font-medium text-foreground hover:bg-secondary/60 transition-colors"
           >
             Sign in
