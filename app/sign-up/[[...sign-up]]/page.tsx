@@ -3,31 +3,32 @@ import { Sparkles } from "lucide-react";
 
 export default function SignUpPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#080808]"
+    <main
+      className="min-h-screen flex items-center justify-center bg-[#080808]"
       style={{
         backgroundImage: "radial-gradient(rgba(16,185,129,0.025) 1px, transparent 1px)",
         backgroundSize: "28px 28px",
       }}
     >
-      <div className="flex flex-col items-center gap-8">
-        {/* Logo */}
+      <div className="flex flex-col items-center gap-8 py-12">
         <div className="flex flex-col items-center gap-3">
           <div
-            className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-lg"
+            className="flex h-12 w-12 items-center justify-center rounded-2xl"
             style={{ background: "linear-gradient(135deg, #10B981, #34D399)" }}
           >
             <Sparkles className="h-6 w-6 text-black" />
           </div>
           <div className="text-center">
-            <h1 className="text-xl font-bold" style={{ color: "#34D399" }}>MoneyTrack</h1>
+            <p className="text-xl font-bold" style={{ color: "#34D399" }}>MoneyTrack</p>
             <p className="text-xs uppercase tracking-widest mt-0.5" style={{ color: "rgba(16,185,129,0.4)" }}>
               Private Finance
             </p>
           </div>
         </div>
 
-        {/* Clerk SignUp */}
         <SignUp
+          fallbackRedirectUrl="/dashboard"
+          signInUrl="/sign-in"
           appearance={{
             variables: {
               colorPrimary: "#10B981",
@@ -65,8 +66,6 @@ export default function SignUpPage() {
                 fontWeight: "700",
               },
               footerActionLink: { color: "#10B981" },
-              identityPreviewText: { color: "#ffffff" },
-              identityPreviewEditButton: { color: "#10B981" },
             },
           }}
         />
