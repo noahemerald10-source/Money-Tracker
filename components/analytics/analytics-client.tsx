@@ -78,7 +78,7 @@ export function AnalyticsClient({ data }: Props) {
   })();
 
   return (
-    <div className="min-h-screen p-6 lg:p-8 space-y-6">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 space-y-6">
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div className="mb-2">
@@ -149,7 +149,7 @@ export function AnalyticsClient({ data }: Props) {
       ) : (
         <>
           {/* ── Spending per month ───────────────────────────────────────── */}
-          <div className="card-section rounded-2xl p-6">
+          <div className="card-section rounded-2xl p-4 sm:p-6">
             <div className="mb-5">
               <h2 className="text-base font-semibold text-white">Spending per month</h2>
               <p className="text-xs text-zinc-500 mt-0.5">Last 12 months — expenses only</p>
@@ -214,13 +214,13 @@ export function AnalyticsClient({ data }: Props) {
           </div>
 
           {/* ── What you are spending on ─────────────────────────────────── */}
-          <div className="card-section rounded-2xl p-6">
+          <div className="card-section rounded-2xl p-4 sm:p-6">
             <div className="mb-5">
               <h2 className="text-base font-semibold text-white">What you are spending on</h2>
               <p className="text-xs text-zinc-500 mt-0.5">All-time expenses by category</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
 
               {/* Left — category list */}
               <div className="space-y-3">
@@ -292,7 +292,7 @@ export function AnalyticsClient({ data }: Props) {
           </div>
 
           {/* ── Spending quality (need / want / waste) ───────────────────── */}
-          <div className="card-section rounded-2xl p-6">
+          <div className="card-section rounded-2xl p-4 sm:p-6">
             <div className="mb-5">
               <h2 className="text-base font-semibold text-white">Spending quality</h2>
               <p className="text-xs text-zinc-500 mt-0.5">Need · Want · Waste breakdown</p>

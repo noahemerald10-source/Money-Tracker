@@ -135,7 +135,7 @@ export function WeeklyReviewClient({ initialReviews }: Props) {
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -270,7 +270,7 @@ export function WeeklyReviewClient({ initialReviews }: Props) {
                 {isExpanded && (
                   <div className="px-5 pb-5 space-y-4 border-t border-border/40">
                     {/* Stats grid */}
-                    <div className="grid grid-cols-4 gap-3 pt-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
                       {[
                         { label: "Earned", value: formatCurrency(review.totalIncome), icon: TrendingUp, color: "text-emerald-400" },
                         { label: "Spent",  value: formatCurrency(review.totalExpenses), icon: TrendingDown, color: "text-red-400" },

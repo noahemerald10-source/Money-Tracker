@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body className={`${inter.variable} font-sans antialiased`}>
           <div className="flex h-screen overflow-hidden bg-background">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto bg-background">
+            <main className="flex-1 overflow-y-auto bg-background pb-16 md:pb-0">
               {children}
             </main>
             <Toaster />

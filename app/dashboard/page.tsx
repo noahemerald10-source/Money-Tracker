@@ -64,7 +64,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-white px-8 py-10 md:px-10">
+    <div className="min-h-screen bg-background text-white px-4 py-6 sm:px-6 md:px-8 md:py-10">
       <div className="mx-auto max-w-6xl space-y-5">
 
         {/* ── Header ── */}
@@ -211,7 +211,7 @@ export default async function DashboardPage() {
         {/* ── Recent Transactions ── */}
         <div className="card-section rounded-2xl overflow-hidden">
 
-          <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.05]">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-white/[0.05]">
             <div>
               <h2 className="text-sm font-semibold text-white tracking-[-0.01em]">Recent Transactions</h2>
               {transactions.length > 0 && (
@@ -249,7 +249,7 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-[2rem_1fr_auto_auto_auto] gap-x-4 px-6 py-2.5 border-b border-white/[0.04]">
+              <div className="grid grid-cols-[2rem_1fr_auto_auto_auto] gap-x-4 px-4 sm:px-6 py-2.5 border-b border-white/[0.04]">
                 <span />
                 <span className="text-[10px] uppercase tracking-[0.1em] font-semibold text-zinc-600">Description</span>
                 <span className="text-[10px] uppercase tracking-[0.1em] font-semibold text-zinc-600 hidden sm:block">Label</span>
@@ -265,7 +265,7 @@ export default async function DashboardPage() {
                   return (
                     <div
                       key={t.id}
-                      className="grid grid-cols-[2rem_1fr_auto_auto_auto] gap-x-4 items-center px-6 py-3.5 border-b border-white/[0.04] last:border-0 hover:bg-white/[0.02] transition-colors duration-100"
+                      className="grid grid-cols-[2rem_1fr_auto_auto_auto] gap-x-4 items-center px-4 sm:px-6 py-3.5 border-b border-white/[0.04] last:border-0 hover:bg-white/[0.02] transition-colors duration-100"
                     >
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold select-none ${
                         t.type === 'income' ? 'bg-emerald-500/[0.12] text-emerald-400' : 'bg-rose-500/10 text-rose-400'

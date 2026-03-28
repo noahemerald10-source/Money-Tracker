@@ -185,7 +185,7 @@ export default function TransactionsPage() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
-      <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="grid gap-8 xl:grid-cols-[360px_minmax(0,1fr)]">
           <aside className="rounded-[28px] border border-white/8 bg-white/[0.02] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl">
             <div className="mb-6">
