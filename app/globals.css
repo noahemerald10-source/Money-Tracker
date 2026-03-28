@@ -41,6 +41,10 @@
 
   html {
     color-scheme: dark;
+    /* Prevent rubber-band bounce at OS level in PWA standalone */
+    overscroll-behavior: none;
+    /* Fix iOS 100vh bug in regular Safari (not standalone) */
+    height: -webkit-fill-available;
   }
 
   body {
@@ -48,9 +52,14 @@
     background-image: radial-gradient(ellipse 60% 35% at 50% 0%, rgba(16, 185, 129, 0.055) 0%, transparent 100%);
     margin: 0;
     min-height: 100vh;
+    min-height: -webkit-fill-available;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+    /* Remove iOS gray flash on tap — we provide our own active states */
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent overscroll bounce at body level */
+    overscroll-behavior: none;
   }
 }
 
@@ -199,3 +208,66 @@
   50%       { opacity: 0.35; }
 }
 .pulse-dot { animation: pulse-live 2.4s ease-in-out infinite; }
+
+/* ── PWA / iOS native UX ─────────────────────────────────────────────────── */
+
+/* Remove 300ms tap delay on all interactive elements */
+a, button, input, select, textarea, label, [role="button"] {
+  touch-action: manipulation;
+}
+
+/* Native-feel tap feedback — only on touch devices to avoid affecting desktop hover */
+@media (hover: none) and (pointer: coarse) {
+  a:active,
+  button:not(:disabled):active,
+  [role="button"]:active {
+    opacity: 0.72;
+    transition: opacity 0.08s ease;
+  }
+  /* Preserve btn-gold's own scale active state */
+  .btn-gold:active {
+    opacity: 1;
+  }
+  /* Preserve stat-card's own hover/active transform */
+  .stat-card:active,
+  .stat-card-positive:active {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+}
+
+/* Prevent iOS auto-zoom when focusing inputs smaller than 16px */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: max(16px, 1em) !important;
+  }
+}
+
+/* Main scroll area: dynamic safe-area-aware bottom clearance for bottom nav */
+.pwa-main-scroll {
+  /* Mobile: bottom nav (~54px) + dynamic home indicator */
+  padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+  /* Contain overscroll so the app doesn't rubber-band at the OS level */
+  overscroll-behavior-y: contain;
+  /* Momentum scrolling (belt-and-suspenders for older iOS) */
+  -webkit-overflow-scrolling: touch;
+}
+@media (min-width: 768px) {
+  .pwa-main-scroll {
+    padding-bottom: 0;
+    overscroll-behavior-y: auto;
+  }
+}
+
+/* ── Page transition (driven by app/template.tsx) ────────────────────────── */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+.page-enter {
+  animation: pageEnter 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  /* GPU-accelerate the animation */
+  will-change: opacity, transform;
+}
