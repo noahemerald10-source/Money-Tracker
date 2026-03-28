@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -37,6 +38,7 @@ type FormData = z.infer<typeof reviewSchema>;
 
 export function WeeklyReviewClient({ initialReviews }: Props) {
   const { toast } = useToast();
+  const router = useRouter();
   const [reviews, setReviews] = useState<WeeklyReview[]>(initialReviews);
   const [showForm, setShowForm] = useState(false);
   const [editingReview, setEditingReview] = useState<WeeklyReview | null>(null);
@@ -108,6 +110,7 @@ export function WeeklyReviewClient({ initialReviews }: Props) {
       setShowForm(false);
       setEditingReview(null);
       setExpandedId(serialized.id);
+      router.refresh();
     } catch {
       toast({ title: "Couldn't save review", variant: "destructive" });
     } finally {
@@ -123,6 +126,7 @@ export function WeeklyReviewClient({ initialReviews }: Props) {
       if (!res.ok) throw new Error();
       setReviews((prev) => prev.filter((r) => r.id !== id));
       toast({ title: "Review deleted" });
+      router.refresh();
     } catch {
       toast({ title: "Couldn't delete review", variant: "destructive" });
     } finally {
