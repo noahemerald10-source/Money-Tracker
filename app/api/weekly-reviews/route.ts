@@ -17,7 +17,11 @@ const createReviewSchema = z.object({
 
 export async function GET() {
   try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const reviews = await prisma.weeklyReview.findMany({
+      where: { userId },
       orderBy: { weekStart: "desc" },
     });
     return NextResponse.json(reviews);

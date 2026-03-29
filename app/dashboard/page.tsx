@@ -1,9 +1,16 @@
+export const dynamic = 'force-dynamic'
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import MonthlyBarChart, { type MonthlyDataPoint } from './MonthlyBarChart'
 import CategoryPieChart, { type CategoryDataPoint } from './CategoryPieChart'
 
 export default async function DashboardPage() {
+  const { userId } = await auth()
+  if (!userId) redirect('/sign-in')
+
   const transactions = await prisma.transaction.findMany({
+    where: { userId },
     orderBy: { date: 'desc' },
   })
 

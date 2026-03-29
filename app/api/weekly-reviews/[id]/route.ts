@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -18,6 +19,13 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const existing = await prisma.weeklyReview.findUnique({ where: { id: params.id } });
+    if (!existing) return NextResponse.json({ error: "Review not found" }, { status: 404 });
+    if (existing.userId !== userId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
     const body = await request.json();
     const data = updateReviewSchema.parse(body);
 
@@ -45,6 +53,13 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const existing = await prisma.weeklyReview.findUnique({ where: { id: params.id } });
+    if (!existing) return NextResponse.json({ error: "Review not found" }, { status: 404 });
+    if (existing.userId !== userId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
     await prisma.weeklyReview.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,21 +1,24 @@
 export const dynamic = 'force-dynamic'
-import { prisma } from "@/lib/prisma";
-import { WeeklyReviewClient } from "@/components/weekly-review/weekly-review-client";
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
+import { prisma } from '@/lib/prisma'
+import { WeeklyReviewClient } from '@/components/weekly-review/weekly-review-client'
 
-async function getData() {
+export default async function WeeklyReviewPage() {
+  const { userId } = await auth()
+  if (!userId) redirect('/sign-in')
+
   const reviews = await prisma.weeklyReview.findMany({
-    orderBy: { weekStart: "desc" },
-  });
+    where: { userId },
+    orderBy: { weekStart: 'desc' },
+  })
 
-  return reviews.map((r) => ({
+  const serialized = reviews.map((r) => ({
     ...r,
     weekStart: r.weekStart.toISOString(),
     weekEnd: r.weekEnd.toISOString(),
     createdAt: r.createdAt.toISOString(),
-  }));
-}
+  }))
 
-export default async function WeeklyReviewPage() {
-  const reviews = await getData();
-  return <WeeklyReviewClient initialReviews={reviews} />;
+  return <WeeklyReviewClient initialReviews={serialized} />
 }

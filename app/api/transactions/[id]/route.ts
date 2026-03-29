@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -20,13 +21,15 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const transaction = await prisma.transaction.findUnique({
       where: { id: params.id },
     });
 
-    if (!transaction) {
-      return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
-    }
+    if (!transaction) return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
+    if (transaction.userId !== userId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     return NextResponse.json(transaction);
   } catch (error) {
@@ -40,6 +43,13 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const existing = await prisma.transaction.findUnique({ where: { id: params.id } });
+    if (!existing) return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
+    if (existing.userId !== userId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
     const body = await request.json();
     const data = updateTransactionSchema.parse(body);
 
@@ -66,6 +76,13 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const existing = await prisma.transaction.findUnique({ where: { id: params.id } });
+    if (!existing) return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
+    if (existing.userId !== userId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
     await prisma.transaction.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
   } catch (error) {

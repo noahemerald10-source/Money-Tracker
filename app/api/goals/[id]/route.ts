@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -16,13 +17,12 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const goal = await prisma.savingsGoal.findUnique({
-      where: { id: params.id },
-    });
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!goal) {
-      return NextResponse.json({ error: "Goal not found" }, { status: 404 });
-    }
+    const goal = await prisma.savingsGoal.findUnique({ where: { id: params.id } });
+    if (!goal) return NextResponse.json({ error: "Goal not found" }, { status: 404 });
+    if (goal.userId !== userId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     return NextResponse.json(goal);
   } catch (error) {
@@ -36,6 +36,13 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const existing = await prisma.savingsGoal.findUnique({ where: { id: params.id } });
+    if (!existing) return NextResponse.json({ error: "Goal not found" }, { status: 404 });
+    if (existing.userId !== userId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
     const body = await request.json();
     const data = updateGoalSchema.parse(body);
 
@@ -64,6 +71,13 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const existing = await prisma.savingsGoal.findUnique({ where: { id: params.id } });
+    if (!existing) return NextResponse.json({ error: "Goal not found" }, { status: 404 });
+    if (existing.userId !== userId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
     await prisma.savingsGoal.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
   } catch (error) {
