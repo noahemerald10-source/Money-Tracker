@@ -18,9 +18,12 @@ model Transaction {
   date               DateTime
   financeMode        String
   necessityLabel     String
-  isRecurring        Boolean  @default(false)
+  isRecurring        Boolean   @default(false)
   recurringFrequency String?
-  createdAt          DateTime @default(now())
+  recurringStartDate DateTime?
+  recurringEndDate   DateTime?
+  lastGeneratedAt    DateTime?
+  createdAt          DateTime  @default(now())
   updatedAt          DateTime @updatedAt
 
   @@index([userId])

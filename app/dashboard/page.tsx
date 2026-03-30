@@ -64,6 +64,113 @@ export default async function DashboardPage() {
   const fmt = (n: number) =>
     n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
+  // ── Insight calculations ──────────────────────────────────────────────
+  const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1)
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const lastMonthEnd   = new Date(now.getFullYear(), now.getMonth(), 0)
+  const weekAgo        = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+  const thisMonthTxns  = transactions.filter((t) => new Date(t.date) >= monthStart)
+  const lastMonthTxns  = transactions.filter((t) => {
+    const d = new Date(t.date)
+    return d >= lastMonthStart && d <= lastMonthEnd
+  })
+  const thisWeekTxns   = transactions.filter((t) => new Date(t.date) >= weekAgo)
+
+  const thisMonthInc   = thisMonthTxns.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+  const thisMonthExp   = thisMonthTxns.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+  const thisMonthSaved = thisMonthInc - thisMonthExp
+  const thisMonthRate  = thisMonthInc > 0 ? Math.round((thisMonthSaved / thisMonthInc) * 100) : 0
+  const thisMonthWaste = thisMonthTxns.filter((t) => t.type === 'expense' && t.necessityLabel === 'waste').reduce((s, t) => s + t.amount, 0)
+
+  const lastMonthInc   = lastMonthTxns.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+  const lastMonthExp   = lastMonthTxns.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+  const lastMonthSaved = lastMonthInc - lastMonthExp
+  const lastMonthRate  = lastMonthInc > 0 ? Math.round((lastMonthSaved / lastMonthInc) * 100) : 0
+
+  const thisWeekExp    = thisWeekTxns.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+  const thisWeekWaste  = thisWeekTxns.filter((t) => t.type === 'expense' && t.necessityLabel === 'waste').reduce((s, t) => s + t.amount, 0)
+  const thisWeekInc    = thisWeekTxns.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+
+  // Biggest category this month
+  const catMapMonth: Record<string, number> = {}
+  thisMonthTxns.filter((t) => t.type === 'expense').forEach((t) => {
+    catMapMonth[t.category] = (catMapMonth[t.category] ?? 0) + t.amount
+  })
+  const topCatEntry = Object.entries(catMapMonth).sort(([, a], [, b]) => b - a)[0]
+
+  // Build insight cards
+  type InsightColor = 'green' | 'amber' | 'red' | 'blue'
+  interface Insight { icon: string; text: string; color: InsightColor; sub?: string }
+  const insights: Insight[] = []
+
+  const monthName = now.toLocaleDateString('en-US', { month: 'long' })
+  const lastMonthName = lastMonthStart.toLocaleDateString('en-US', { month: 'long' })
+
+  if (topCatEntry) {
+    insights.push({
+      icon: '🏷️',
+      text: `You spent most on ${topCatEntry[0]} this month`,
+      sub: `$${fmt(topCatEntry[1])} in ${monthName}`,
+      color: 'blue',
+    })
+  }
+
+  if (lastMonthInc > 0 && thisMonthInc > 0) {
+    if (thisMonthRate > lastMonthRate) {
+      insights.push({
+        icon: '📈',
+        text: `Savings rate improved vs ${lastMonthName}`,
+        sub: `${lastMonthRate}% → ${thisMonthRate}%`,
+        color: 'green',
+      })
+    } else if (thisMonthRate < lastMonthRate) {
+      insights.push({
+        icon: '📉',
+        text: `Savings rate is down vs ${lastMonthName}`,
+        sub: `${lastMonthRate}% → ${thisMonthRate}%`,
+        color: 'amber',
+      })
+    }
+  }
+
+  if (thisMonthWaste > 0) {
+    insights.push({
+      icon: '⚠️',
+      text: `$${fmt(thisMonthWaste)} of waste spending this month`,
+      sub: thisMonthExp > 0 ? `${Math.round((thisMonthWaste / thisMonthExp) * 100)}% of total expenses` : undefined,
+      color: 'red',
+    })
+  }
+
+  if (thisWeekInc > thisWeekExp && thisWeekInc > 0) {
+    insights.push({
+      icon: '✅',
+      text: `You're on track this week`,
+      sub: `$${fmt(thisWeekInc - thisWeekExp)} net this week`,
+      color: 'green',
+    })
+  }
+
+  const insightBg: Record<InsightColor, string> = {
+    green: 'rgba(16,185,129,0.06)',
+    amber: 'rgba(245,158,11,0.06)',
+    red:   'rgba(239,68,68,0.06)',
+    blue:  'rgba(59,130,246,0.06)',
+  }
+  const insightBorder: Record<InsightColor, string> = {
+    green: 'rgba(16,185,129,0.15)',
+    amber: 'rgba(245,158,11,0.15)',
+    red:   'rgba(239,68,68,0.15)',
+    blue:  'rgba(59,130,246,0.15)',
+  }
+  const insightText: Record<InsightColor, string> = {
+    green: '#10B981',
+    amber: '#F59E0B',
+    red:   '#EF4444',
+    blue:  '#3B82F6',
+  }
+
   const tagClass: Record<string, string> = {
     need: 'tag-pill tag-need',
     want: 'tag-pill tag-want',
@@ -174,6 +281,95 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* ── This month / week summary ── */}
+        {transactions.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* This month */}
+            <div className="card-section rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.12em] font-semibold text-zinc-500">{monthName}</p>
+                  <h3 className="text-sm font-semibold text-white mt-0.5">This Month</h3>
+                </div>
+                <div
+                  className="rounded-lg px-2.5 py-1 text-xs font-semibold tabular-nums"
+                  style={{
+                    background: thisMonthRate >= 20 ? 'rgba(16,185,129,0.1)' : thisMonthRate >= 10 ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)',
+                    color:      thisMonthRate >= 20 ? '#10B981'              : thisMonthRate >= 10 ? '#F59E0B'              : '#EF4444',
+                  }}
+                >
+                  {thisMonthRate}% saved
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: 'Income',   value: thisMonthInc,   color: '#10B981' },
+                  { label: 'Expenses', value: thisMonthExp,   color: '#EF4444' },
+                  { label: 'Net',      value: thisMonthSaved, color: thisMonthSaved >= 0 ? '#10B981' : '#EF4444' },
+                ].map((s) => (
+                  <div key={s.label}>
+                    <p className="text-[10px] text-zinc-600 mb-1">{s.label}</p>
+                    <p className="text-base font-semibold tabular-nums tracking-tight" style={{ color: s.color }}>
+                      {thisMonthSaved < 0 && s.label === 'Net' ? '−' : ''}${fmt(Math.abs(s.value))}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* This week */}
+            <div className="card-section rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.12em] font-semibold text-zinc-500">Last 7 days</p>
+                  <h3 className="text-sm font-semibold text-white mt-0.5">This Week</h3>
+                </div>
+                {thisWeekWaste > 0 && (
+                  <div className="rounded-lg px-2.5 py-1 text-xs font-semibold" style={{ background: 'rgba(239,68,68,0.08)', color: '#EF4444' }}>
+                    ${fmt(thisWeekWaste)} waste
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: 'Income',   value: thisWeekInc,           color: '#10B981' },
+                  { label: 'Expenses', value: thisWeekExp,           color: '#EF4444' },
+                  { label: 'Net',      value: thisWeekInc - thisWeekExp, color: (thisWeekInc - thisWeekExp) >= 0 ? '#10B981' : '#EF4444' },
+                ].map((s) => (
+                  <div key={s.label}>
+                    <p className="text-[10px] text-zinc-600 mb-1">{s.label}</p>
+                    <p className="text-base font-semibold tabular-nums tracking-tight" style={{ color: s.color }}>
+                      {s.value < 0 ? '−' : ''}${fmt(Math.abs(s.value))}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Insight cards ── */}
+        {insights.length > 0 && (
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.15em] font-semibold text-zinc-600 mb-3">Insights</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {insights.map((ins, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-3 rounded-xl px-4 py-3"
+                  style={{ background: insightBg[ins.color], border: `1px solid ${insightBorder[ins.color]}` }}
+                >
+                  <span className="text-lg leading-none mt-0.5">{ins.icon}</span>
+                  <div>
+                    <p className="text-sm font-medium text-white leading-snug">{ins.text}</p>
+                    {ins.sub && <p className="text-xs mt-0.5" style={{ color: insightText[ins.color] }}>{ins.sub}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ── Charts row ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">

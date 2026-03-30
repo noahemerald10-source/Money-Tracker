@@ -14,6 +14,8 @@ const updateTransactionSchema = z.object({
   necessityLabel: z.enum(["need", "want", "waste"]).optional(),
   isRecurring: z.boolean().optional(),
   recurringFrequency: z.enum(["weekly", "fortnightly", "monthly", "quarterly", "yearly"]).optional().nullable(),
+  recurringStartDate: z.string().optional().nullable(),
+  recurringEndDate: z.string().optional().nullable(),
 });
 
 export async function GET(
@@ -55,6 +57,10 @@ export async function PUT(
 
     const updateData: Record<string, unknown> = { ...data };
     if (data.date) updateData.date = new Date(data.date);
+    if (data.recurringStartDate !== undefined)
+      updateData.recurringStartDate = data.recurringStartDate ? new Date(data.recurringStartDate) : null;
+    if (data.recurringEndDate !== undefined)
+      updateData.recurringEndDate = data.recurringEndDate ? new Date(data.recurringEndDate) : null;
 
     const transaction = await prisma.transaction.update({
       where: { id: params.id },

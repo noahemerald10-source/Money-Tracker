@@ -14,6 +14,8 @@ const createTransactionSchema = z.object({
   necessityLabel: z.enum(["need", "want", "waste"]),
   isRecurring: z.boolean().optional().default(false),
   recurringFrequency: z.enum(["weekly", "fortnightly", "monthly", "quarterly", "yearly"]).optional().nullable(),
+  recurringStartDate: z.string().optional().nullable(),
+  recurringEndDate: z.string().optional().nullable(),
 });
 
 export async function GET(request: NextRequest) {
@@ -76,11 +78,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = createTransactionSchema.parse(body);
 
+    const { recurringStartDate, recurringEndDate, ...rest } = data;
     const transaction = await prisma.transaction.create({
       data: {
-        ...data,
+        ...rest,
         userId: userId ?? "anonymous",
         date: new Date(data.date),
+        recurringStartDate: recurringStartDate ? new Date(recurringStartDate) : null,
+        recurringEndDate: recurringEndDate ? new Date(recurringEndDate) : null,
       },
     });
 

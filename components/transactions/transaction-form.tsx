@@ -51,6 +51,8 @@ const schema = z.object({
   date: z.string().min(1, "Date is required"),
   financeMode: z.enum(["personal", "business"]),
   necessityLabel: z.enum(["need", "want", "waste"]),
+  recurringStartDate: z.string().optional(),
+  recurringEndDate: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -73,6 +75,7 @@ export function TransactionForm({ transaction, prefill, onBackToTemplates }: Pro
     (prefill?.frequency as Frequency) ??
     "monthly"
   );
+  const today = format(new Date(), "yyyy-MM-dd");
 
   const isEdit = !!transaction;
 
@@ -95,6 +98,12 @@ export function TransactionForm({ transaction, prefill, onBackToTemplates }: Pro
         : format(new Date(), "yyyy-MM-dd"),
       financeMode: (transaction?.financeMode as "personal" | "business") ?? prefill?.financeMode ?? "personal",
       necessityLabel: (transaction?.necessityLabel as "need" | "want" | "waste") ?? prefill?.necessityLabel ?? "need",
+      recurringStartDate: transaction?.recurringStartDate
+        ? format(new Date(transaction.recurringStartDate as string), "yyyy-MM-dd")
+        : format(new Date(), "yyyy-MM-dd"),
+      recurringEndDate: transaction?.recurringEndDate
+        ? format(new Date(transaction.recurringEndDate as string), "yyyy-MM-dd")
+        : "",
     },
   });
 
@@ -121,6 +130,8 @@ export function TransactionForm({ transaction, prefill, onBackToTemplates }: Pro
           ...data,
           isRecurring,
           recurringFrequency: isRecurring ? frequency : null,
+          recurringStartDate: isRecurring && data.recurringStartDate ? data.recurringStartDate : null,
+          recurringEndDate: isRecurring && data.recurringEndDate ? data.recurringEndDate : null,
         }),
       });
 
@@ -329,6 +340,20 @@ export function TransactionForm({ transaction, prefill, onBackToTemplates }: Pro
                           {f.label}
                         </button>
                       ))}
+                    </div>
+                  </div>
+
+                  {/* Start / End dates */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs" style={{ color: "#9CA3AF" }}>Start date</Label>
+                      <Input type="date" className="h-9 text-sm" {...register("recurringStartDate")} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs" style={{ color: "#9CA3AF" }}>
+                        End date <span style={{ color: "#4B5563" }}>(optional)</span>
+                      </Label>
+                      <Input type="date" className="h-9 text-sm" {...register("recurringEndDate")} />
                     </div>
                   </div>
 

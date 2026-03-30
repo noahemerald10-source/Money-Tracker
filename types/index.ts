@@ -10,6 +10,9 @@ export interface Transaction {
   necessityLabel: string;
   isRecurring: boolean;
   recurringFrequency?: string | null;
+  recurringStartDate?: Date | string | null;
+  recurringEndDate?: Date | string | null;
+  lastGeneratedAt?: Date | string | null;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
