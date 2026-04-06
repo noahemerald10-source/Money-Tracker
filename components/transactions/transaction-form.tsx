@@ -207,7 +207,7 @@ export function TransactionForm({ transaction, prefill, onBackToTemplates }: Pro
                   value={watchType}
                   onValueChange={(v) => {
                     setValue("type", v as "income" | "expense");
-                    setValue("category", "");
+                    setValue("category", CATEGORIES[newType as "income" | "expense"][0]);
                   }}
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
