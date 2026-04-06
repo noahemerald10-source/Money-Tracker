@@ -13,7 +13,7 @@ const createTransactionSchema = z.object({
   financeMode: z.enum(["personal", "business"]).optional().default("personal"),
   necessityLabel: z.enum(["need", "want", "waste"]).optional().default("need"),
   isRecurring: z.boolean().optional().default(false),
-  recurringFrequency: z
+  recurringFrequency: z.preprocess((v) => v === "" ? null : v, z
     .enum(["weekly", "fortnightly", "monthly", "quarterly", "yearly"])
     .optional()
     .nullable(),
