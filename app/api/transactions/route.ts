@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -10,19 +9,17 @@ const createTransactionSchema = z.object({
   subcategory: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
   date: z.string(),
-  financeMode: z.enum(["personal", "business"]),
-  necessityLabel: z.enum(["need", "want", "waste"]),
+  financeMode: z.enum(["personal", "business"]).optional().default("personal"),
+  necessityLabel: z.enum(["need", "want", "waste"]).optional().default("need"),
   isRecurring: z.boolean().optional().default(false),
-  recurringFrequency: z.enum(["weekly", "fortnightly", "monthly", "quarterly", "yearly"]).optional().nullable(),
-  recurringStartDate: z.string().optional().nullable(),
-  recurringEndDate: z.string().optional().nullable(),
+  recurringFrequency: z
+    .enum(["weekly", "fortnightly", "monthly", "quarterly", "yearly"])
+    .optional()
+    .nullable(),
 });
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
     const category = searchParams.get("category");
@@ -35,13 +32,11 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get("sortBy") || "date";
     const sortOrder = searchParams.get("sortOrder") || "desc";
 
-    const where: Record<string, unknown> = { userId };
-
+    const where: Record<string, unknown> = {};
     if (type) where.type = type;
     if (category) where.category = category;
     if (financeMode) where.financeMode = financeMode;
     if (necessityLabel) where.necessityLabel = necessityLabel;
-
     if (search) {
       where.OR = [
         { description: { contains: search } },
@@ -49,7 +44,6 @@ export async function GET(request: NextRequest) {
         { subcategory: { contains: search } },
       ];
     }
-
     if (dateFrom || dateTo) {
       where.date = {};
       if (dateFrom) (where.date as Record<string, unknown>).gte = new Date(dateFrom);
@@ -74,18 +68,21 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
     const body = await request.json();
     const data = createTransactionSchema.parse(body);
 
-    const { recurringStartDate, recurringEndDate, ...rest } = data;
     const transaction = await prisma.transaction.create({
       data: {
-        ...rest,
-        userId: userId ?? "anonymous",
+        type: data.type,
+        amount: data.amount,
+        category: data.category,
+        subcategory: data.subcategory ?? null,
+        description: data.description ?? null,
         date: new Date(data.date),
-        recurringStartDate: recurringStartDate ? new Date(recurringStartDate) : null,
-        recurringEndDate: recurringEndDate ? new Date(recurringEndDate) : null,
+        financeMode: data.financeMode ?? "personal",
+        necessityLabel: data.necessityLabel ?? "need",
+        isRecurring: data.isRecurring ?? false,
+        recurringFrequency: data.isRecurring ? (data.recurringFrequency ?? null) : null,
       },
     });
 
