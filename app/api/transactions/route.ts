@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -20,6 +21,9 @@ const createTransactionSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
     const category = searchParams.get("category");
@@ -32,7 +36,7 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get("sortBy") || "date";
     const sortOrder = searchParams.get("sortOrder") || "desc";
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { userId };
     if (type) where.type = type;
     if (category) where.category = category;
     if (financeMode) where.financeMode = financeMode;
@@ -68,11 +72,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { userId } = await auth();
     const body = await request.json();
     const data = createTransactionSchema.parse(body);
 
     const transaction = await prisma.transaction.create({
       data: {
+        userId: userId ?? "anonymous",
         type: data.type,
         amount: data.amount,
         category: data.category,
