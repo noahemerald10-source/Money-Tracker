@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -8,7 +9,7 @@ import {
   Target,
   ClipboardList,
   BarChart3,
-  Sparkles,
+  PiggyBank,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ const navItems = [
   { href: "/goals",         label: "Goals",         shortLabel: "Goals",    icon: Target },
   { href: "/weekly-review", label: "Weekly Review", shortLabel: "Review",   icon: ClipboardList },
   { href: "/analytics",     label: "Analytics",     shortLabel: "Stats",    icon: BarChart3 },
+  { href: "/savings",       label: "Savings Calc",  shortLabel: "Calc",     icon: PiggyBank },
 ];
 
 export function Sidebar() {
@@ -39,23 +41,17 @@ export function Sidebar() {
       >
         {/* Logo */}
         <div
-          className="flex items-center gap-3 px-5 py-5"
+          className="flex items-center gap-3 px-5 py-4"
           style={{ borderBottom: "1px solid rgba(16,185,129,0.08)" }}
         >
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-xl shadow-gold-sm"
-            style={{ background: "linear-gradient(135deg, #10B981, #34D399)" }}
-          >
-            <Sparkles className="h-4 w-4 text-black" />
-          </div>
-          <div>
-            <span className="text-sm font-bold tracking-tight" style={{ color: "#34D399" }}>
-              MoneyTrack
-            </span>
-            <p className="text-[10px] uppercase tracking-widest" style={{ color: "rgba(16,185,129,0.4)" }}>
-              Private Finance
-            </p>
-          </div>
+          <Image
+            src="/logo.png"
+            alt="MoneyTrack"
+            width={140}
+            height={40}
+            className="object-contain"
+            priority
+          />
         </div>
 
         {/* Navigation */}

@@ -1,17 +1,20 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { startOfMonth, endOfMonth, subMonths, format } from "date-fns";
 
 export async function GET() {
   try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const now = new Date();
     const monthStart = startOfMonth(now);
     const monthEnd = endOfMonth(now);
 
-    // Current month totals
     const currentMonthTransactions = await prisma.transaction.findMany({
-      where: { date: { gte: monthStart, lte: monthEnd } },
+      where: { userId, date: { gte: monthStart, lte: monthEnd } },
     });
 
     const totalIncome = currentMonthTransactions
@@ -33,7 +36,7 @@ export async function GET() {
       const end = endOfMonth(date);
 
       const txns = await prisma.transaction.findMany({
-        where: { date: { gte: start, lte: end } },
+        where: { userId, date: { gte: start, lte: end } },
       });
 
       const income = txns.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
@@ -47,7 +50,6 @@ export async function GET() {
       });
     }
 
-    // Spending by category (current month)
     const expensesByCategory: Record<string, number> = {};
     currentMonthTransactions
       .filter((t) => t.type === "expense")
@@ -59,19 +61,18 @@ export async function GET() {
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
 
-    // Recent transactions
     const recentTransactions = await prisma.transaction.findMany({
+      where: { userId },
       orderBy: { date: "desc" },
       take: 10,
     });
 
-    // Savings goals
     const goals = await prisma.savingsGoal.findMany({
+      where: { userId },
       orderBy: { priority: "desc" },
       take: 4,
     });
 
-    // Personal vs Business split (current month expenses)
     const personalExpenses = currentMonthTransactions
       .filter((t) => t.type === "expense" && t.financeMode === "personal")
       .reduce((s, t) => s + t.amount, 0);
@@ -79,7 +80,6 @@ export async function GET() {
       .filter((t) => t.type === "expense" && t.financeMode === "business")
       .reduce((s, t) => s + t.amount, 0);
 
-    // Need/Want/Waste breakdown
     const needSpending = currentMonthTransactions
       .filter((t) => t.type === "expense" && t.necessityLabel === "need")
       .reduce((s, t) => s + t.amount, 0);

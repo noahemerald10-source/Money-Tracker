@@ -1,10 +1,14 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { startOfMonth, endOfMonth, subMonths, format } from "date-fns";
 
 export async function GET() {
   try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const now = new Date();
 
     // Last 6 months data
@@ -15,7 +19,7 @@ export async function GET() {
       const end = endOfMonth(date);
 
       const txns = await prisma.transaction.findMany({
-        where: { date: { gte: start, lte: end } },
+        where: { userId, date: { gte: start, lte: end } },
       });
 
       const income = txns.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
@@ -44,9 +48,9 @@ export async function GET() {
       });
     }
 
-    // All-time category breakdown
+    // All-time category breakdown (this user only)
     const allTransactions = await prisma.transaction.findMany({
-      where: { type: "expense" },
+      where: { userId, type: "expense" },
     });
 
     const categoryMap: Record<string, number> = {};
@@ -59,14 +63,12 @@ export async function GET() {
       .sort((a, b) => b.value - a.value)
       .slice(0, 10);
 
-    // Savings trend
     const savingsTrend = monthlyData.map((d) => ({
       month: d.month,
       saved: d.saved,
       savingsRate: d.savingsRate,
     }));
 
-    // Need/Want/Waste totals
     const needWantWasteData = monthlyData.map((d) => ({
       month: d.month,
       Need: d.need,
@@ -74,7 +76,6 @@ export async function GET() {
       Waste: d.waste,
     }));
 
-    // Personal vs business monthly
     const personalVsBusinessData = monthlyData.map((d) => ({
       month: d.month,
       Personal: d.personal,
