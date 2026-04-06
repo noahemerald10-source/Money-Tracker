@@ -90,7 +90,7 @@ export function TransactionForm({ transaction, prefill, onBackToTemplates }: Pro
     defaultValues: {
       type: (transaction?.type as "income" | "expense") ?? prefill?.type ?? "expense",
       amount: transaction?.amount || undefined,
-      category: transaction?.category ?? prefill?.category ?? "",
+      category: transaction?.category ?? prefill?.category ?? "Housing",
       subcategory: transaction?.subcategory ?? prefill?.subcategory ?? "",
       description: transaction?.description ?? prefill?.description ?? "",
       date: transaction?.date
